@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuentos y Saberes | UNL Loja-Ecuador</title>
+    
+    <!-- Importamos Tailwind CSS para estilos rápidos y responsivos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fuentes de Google: 'Cinzel' para títulos (toque vintage/épico) y 'Lato' para lectura -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <!-- Iconos para botones y decoración -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+    <!-- Configuración personalizada de Tailwind y Estilos CSS -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        unl: {
+                            light: '#4c8db5', // Azul claro institucional
+                            DEFAULT: '#003366', // Azul oscuro principal
+                            dark: '#002244',
+                        },
+                        vintage: {
+                            paper: '#fdfbf7', // Color crema fondo
+                            gold: '#c5a059',  // Dorado para detalles
+                            text: '#2d3748'
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Cinzel', 'serif'],
+                        sans: ['Lato', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                        'modal-in': 'modalIn 0.3s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        modalIn: {
+                            '0%': { opacity: '0', transform: 'scale(0.95)' },
+                            '100%': { opacity: '1', transform: 'scale(1)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* --- ESTILOS GENERALES Y VINTAGE --- */
+        body {
+            background-color: #fdfbf7;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%239C92AC' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Lienzo para las hojas cayendo */
+        #canvas-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; 
+            pointer-events: none;
+        }
+
+        /* Contenedor principal del contenido SPA */
+        #main-content {
+            flex: 1;
+            position: relative;
+            padding-top: 80px; /* Espacio para el navbar fijo */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Secciones SPA */
+        .spa-section {
+            display: none; /* Ocultas por defecto */
+            flex: 1;
+            animation: fadeIn 0.5s ease-out;
+            padding-bottom: 2rem;
+        }
+
+        .spa-section.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center; 
+        }
+
+        /* --- ESTILOS DE LA TARJETA GIRATORIA (FLIP CARD) HORIZONTAL --- */
+        .perspective-1000 {
+            perspective: 1500px; /* Perspectiva más profunda para tarjetas anchas */
+        }
+        
+        /* Contenedor Adaptable Horizontal */
+        #carousel-container {
+            width: 90%; /* Ocupa casi todo el ancho en móviles */
+            max-width: 800px; /* Ancho máximo en escritorio (Horizontal) */
+            aspect-ratio: 16/9; /* Mantiene proporción rectangular */
+            position: relative;
+            margin: 0 auto;
+        }
+        
+        /* En pantallas muy pequeñas, ajustamos la altura mínima para que quepa texto */
+        @media (max-width: 640px) {
+            #carousel-container {
+                aspect-ratio: 4/3; 
+            }
+        }
+
+        .carousel-item {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transition: all 0.7s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            cursor: pointer;
+            border-radius: 1rem;
+        }
+
+        .flip-card-inner.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 1rem;
+            overflow: hidden;
+            border: 4px solid #c5a059;
+        }
+
+        .flip-card-back {
+            background-color: #003366;
+            color: white;
+            transform: rotateY(180deg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            background-image: linear-gradient(135deg, #002244 0%, #003366 100%);
+        }
+
+        /* Botones de navegación del carrusel */
+        .carousel-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: #003366;
+            border: 2px solid #c5a059;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+        .carousel-btn:hover {
+            background: #c5a059;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* Navegación Activa */
+        .nav-link.active {
+            color: #c5a059;
+            border-bottom: 2px solid #c5a059;
+        }
+
+        /* Menú Móvil */
+        #mobile-menu {
+            transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        #mobile-menu.open {
+            max-height: 400px;
+            opacity: 1;
+        }
+
+        /* MODAL */
+        #media-modal {
+            transition: opacity 0.3s ease-in-out;
+        }
+        #media-modal.hidden {
+            display: none;
+            opacity: 0;
+            pointer-events: none;
+        }
+        #media-modal.flex {
+            display: flex;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+    </style>
+</head>
+<body class="text-vintage-text font-sans antialiased selection:bg-unl-light selection:text-white">
+
+    <!-- Animación de Fondo -->
+    <canvas id="canvas-background"></canvas>
+
+    <!-- Header / Navegación -->
+    <header class="fixed w-full z-40 bg-unl/95 backdrop-blur-md border-b-4 border-vintage-gold shadow-2xl">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <!-- Logo y Título -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="showSection('inicio')">
+                    <div class="h-10 w-10 bg-white rounded-full flex items-center justify-center border-2 border-vintage-gold overflow-hidden">
+                        <!-- LOGO CABECERA (logoins.png) -->
+                        <img src="logoins.png" onerror="this.src='https://via.placeholder.com/50x50?text=UNL'" alt="Logo UNL" class="h-full w-full object-cover">
+                    </div>
+                    <h1 class="font-serif text-white text-lg md:text-xl font-bold tracking-wider truncate">UNIVERSIDAD NACIONAL DE LOJA</h1>
+                </div>
+                
+                <!-- Menú de Navegación Escritorio -->
+                <nav class="hidden md:flex space-x-6 text-xs lg:text-sm font-serif uppercase tracking-widest text-gray-300">
+                    <button onclick="showSection('inicio')" class="nav-link active hover:text-white transition-all">Inicio</button>
+                    <button onclick="showSection('proyecto')" class="nav-link hover:text-white transition-all">Proyecto</button>
+                    <button onclick="showSection('institucional')" class="nav-link hover:text-white transition-all">Institución</button>
+                    <button onclick="showSection('autor')" class="nav-link hover:text-white transition-all">Autor</button>
+                    <button onclick="showSection('cuento')" class="nav-link hover:text-white transition-all">Cuento</button>
+                </nav>
+                
+                <!-- Botón Menú Móvil -->
+                <button onclick="toggleMobileMenu()" class="md:hidden text-white hover:text-vintage-gold focus:outline-none">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+
+            <!-- Menú Móvil Desplegable -->
+            <div id="mobile-menu" class="md:hidden mt-2 bg-unl-dark rounded-lg shadow-inner">
+                <div class="flex flex-col space-y-2 p-4 text-center">
+                    <button onclick="showSection('inicio'); toggleMobileMenu()" class="text-white hover:text-vintage-gold py-2 border-b border-white/10">Inicio</button>
+                    <button onclick="showSection('proyecto'); toggleMobileMenu()" class="text-white hover:text-vintage-gold py-2 border-b border-white/10">El Proyecto</button>
+                    <button onclick="showSection('institucional'); toggleMobileMenu()" class="text-white hover:text-vintage-gold py-2 border-b border-white/10">Institución</button>
+                    <button onclick="showSection('autor'); toggleMobileMenu()" class="text-white hover:text-vintage-gold py-2 border-b border-white/10">Autor</button>
+                    <button onclick="showSection('cuento'); toggleMobileMenu()" class="text-white hover:text-vintage-gold py-2">Cuento</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenedor Principal donde cambia el contenido -->
+    <main id="main-content">
+
+        <!-- SECCIÓN 1: INICIO (SOLO CARRUSEL Y TÍTULO) -->
+        <section id="inicio" class="spa-section active items-center justify-center min-h-full py-10">
+            <div class="container mx-auto px-4 flex flex-col items-center justify-center h-full w-full">
+                
+                <!-- Títulos -->
+                <div class="text-center mb-8 animate-fade-in px-4">
+                    <span class="text-unl font-bold tracking-[0.2em] uppercase text-xs mb-2 block">Proyecto de Vinculación</span>
+                    <h1 class="font-serif text-3xl md:text-5xl lg:text-6xl text-unl-dark font-bold mb-4 drop-shadow-sm leading-tight">
+                        Cuentos, Costumbres y Tradiciones
+                    </h1>
+                    <div class="h-1 w-24 bg-vintage-gold mx-auto rounded-full"></div>
+                </div>
+
+                <!-- CARRUSEL 3D HORIZONTAL -->
+                <div class="relative w-full flex items-center justify-center perspective-1000">
+                    
+                    <!-- Botones Laterales (Ajustados para móvil) -->
+                    <button id="prevBtn" class="absolute left-2 md:left-4 z-30 carousel-btn p-3 md:p-4 rounded-full shadow-lg text-lg">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button id="nextBtn" class="absolute right-2 md:right-4 z-30 carousel-btn p-3 md:p-4 rounded-full shadow-lg text-lg">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+
+                    <!-- Contenedor de Cartas (Aspect Ratio manejado por CSS) -->
+                    <div id="carousel-container">
+                        
+                        <!-- CARTA 1: Cantón Loja -->
+                        <div class="carousel-item z-20" data-index="0">
+                            <div class="flip-card-inner">
+                                <!-- Frente -->
+                                <div class="flip-card-front bg-gray-200">
+                                    <!-- IMAGEN HORIZONTAL -->
+                                    <img src="catedral_loja.jpg" onerror="this.src='https://via.placeholder.com/800x450/4c8db5/FFFFFF?text=Panorámica+Chaguarpamba'" alt="Cantón Chaguarpamba" class="w-full h-full object-cover">
+                                    <div class="absolute bottom-0 w-full bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 md:p-8 pt-12 text-left">
+                                        <h3 class="text-white font-serif text-xl md:text-3xl font-bold">Cantón Loja</h3>
+                                        <p class="text-vintage-gold text-xs md:text-sm uppercase tracking-wider mt-1">Tierra de Arte y Cultura</p>
+                                        <p class="text-xs text-gray-300 mt-2 absolute right-4 bottom-4 flex items-center gap-1"><i class="fas fa-hand-pointer animate-bounce"></i> Info</p>
+                                    </div>
+                                </div>
+                                <!-- Dorso -->
+                                <div class="flip-card-back">
+                                    <div class="w-12 h-12 md:w-16 md:h-16 mb-2 md:mb-4 rounded-full bg-vintage-gold flex items-center justify-center text-unl-dark">
+                                        <i class="fas fa-map-marked-alt text-2xl md:text-3xl"></i>
+                                    </div>
+                                    <h3 class="font-serif text-xl md:text-4xl font-bold mb-2 md:mb-3 text-vintage-gold">El Cantón</h3>
+                                    <p style="line-height: 2;" class="text-xs md:text-sm leading-relaxed mb-4 px-2 md:px-20">
+                                        <strong>Loja</strong>, conocida como la <strong>Capital Cultural del Ecuador</strong>, fue fundada el 8 de diciembre de 1548 por el español Alonso de Mercadillo.
+                                        Es una de las ciudades más antiguas del país y ha sido históricamente un importante centro cultural, artístico y académico del sur del Ecuador.
+                                        Loja es cabecera cantonal y capital de la provincia del mismo nombre. Actualmente, la ciudad cuenta con una población aproximada de más de <strong>200.000 habitantes</strong>, destacándose por su tradición musical, su riqueza histórica y su entorno natural privilegiado. 
+                                    </p>
+                                    <button class="mt-auto text-xs md:text-sm border border-vintage-gold px-4 py-1 rounded hover:bg-vintage-gold hover:text-unl transition-colors">Volver</button>
+                                </div>
+                            </div>
+                        </div>
+
+                         <!-- CARTA 2: Símbolos Patrios (NUEVO) -->
+                         <div class="carousel-item z-10 opacity-60 transform translate-x-12 scale-90" data-index="1">
+                            <div class="flip-card-inner">
+                                <div class="flip-card-front bg-gray-200">
+                                    <img src="escudo-loja-final.jpeg" onerror="this.src='https://via.placeholder.com/800x450/c5a059/000000?text=Símbolos+Patrios'" alt="Símbolos Patrios" class="w-full h-full object-cover">
+                                    <div class="absolute bottom-0 w-full bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 md:p-8 pt-12 text-left">
+                                        <h3 class="text-white font-serif text-xl md:text-3xl font-bold">Símbolos Patrios</h3>
+                                        <p class="text-vintage-gold text-xs md:text-sm uppercase tracking-wider mt-1">Escudo y Bandera</p>
+                                    </div>
+                                </div>
+                                <div class="flip-card-back">
+                                    <div class="w-12 h-12 md:w-16 md:h-16 mb-2 md:mb-4 rounded-full bg-vintage-gold flex items-center justify-center text-unl-dark">
+                                        <i class="fas fa-flag text-2xl md:text-3xl"></i>
+                                    </div>
+                                    <h3 class="font-serif text-xl md:text-4xl font-bold mb-2 md:mb-3 text-vintage-gold">Identidad</h3>
+                                    <p style="line-height: 2;" class="text-xs md:text-sm leading-relaxed mb-4 px-2 md:px-20">
+                                        Los símbolos del cantón <strong>Loja</strong> se representan en su blasón de estilo español, el cual refleja la historia, identidad y valores de la ciudad.
+                                        En el escudo se observa una escena histórica que simboliza la fundación y el legado cultural de Loja.
+                                        Las líneas onduladas en la parte inferior representan los ríos y la riqueza natural del cantón.
+                                        El escudo está adornado con follaje decorativo y coronado por un yelmo, símbolos de nobleza y fortaleza.
+                                        En la parte inferior se lee el lema <strong>“Fidelis Loxa Liberis”</strong>, que expresa la lealtad y el espíritu libre del pueblo lojano.
+                                    </p>
+                                    <button class="mt-auto text-xs md:text-sm border border-vintage-gold px-4 py-1 rounded hover:bg-vintage-gold hover:text-unl transition-colors">Volver</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CARTA 3: Costumbres -->
+                        <div class="carousel-item z-10 opacity-60 transform translate-x-12 scale-90" data-index="2">
+                            <div class="flip-card-inner">
+                                <div class="flip-card-front bg-gray-200">
+                                    <img src="LOJA-TURISMO.jpeg" onerror="this.src='https://via.placeholder.com/800x450/4c8db5/FFFFFF?text=Costumbres+y+Fiestas'" alt="Costumbres" class="w-full h-full object-cover">
+                                    <div class="absolute bottom-0 w-full bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 md:p-8 pt-12 text-left">
+                                        <h3 class="text-white font-serif text-xl md:text-3xl font-bold">Costumbres</h3>
+                                        <p class="text-vintage-gold text-xs md:text-sm uppercase tracking-wider mt-1">Tradición Viva</p>
+                                    </div>
+                                </div>
+                                <div class="flip-card-back">
+                                    <div class="w-12 h-12 md:w-16 md:h-16 mb-2 md:mb-4 rounded-full bg-vintage-gold flex items-center justify-center text-unl-dark">
+                                        <i class="fas fa-music text-2xl md:text-3xl"></i>
+                                    </div>
+                                    <h3 class="font-serif text-xl md:text-4xl font-bold mb-2 md:mb-3 text-vintage-gold">Costumbres y Tradiciones</h3>
+                                    <p style="line-height: 2;" class="text-xs md:text-sm leading-relaxed mb-4 px-2 md:px-20">
+                                        El patrimonio natural y cultural que posee la <strong>ciudad de Loja</strong> constituye un importante potencial turístico, que permite el desarrollo de actividades y proyectos de turismo cultural, ecológico y sostenible, orientados a la conservación y valoración de sus recursos.
+                                        Loja cuenta con atractivos turísticos de gran valor natural, histórico, arquitectónico y artístico, muchos de los cuales reflejan su identidad como capital cultural del Ecuador.
+                                        Sin embargo, la ciudad reúne las condiciones que busca el turista nacional y extranjero, tales como paisajes naturales, tradiciones, música, gastronomía y patrimonio histórico, lo que la posiciona como un destino turístico con alto potencial.
+                                        La identificación y valoración de estos atractivos permiten promover el desarrollo turístico sostenible de Loja, fortalecer su identidad cultural y satisfacer las necesidades de recreación y ocio de los visitantes.
+                                    </p>
+                                    <button class="mt-auto text-xs md:text-sm border border-vintage-gold px-4 py-1 rounded hover:bg-vintage-gold hover:text-unl transition-colors">Volver</button>
+                                </div>
+                            </div>
+                        </div>
+
+                         <!-- CARTA 4: Patrimonio Cultural -->
+                         <div class="carousel-item z-10 opacity-60 transform -translate-x-12 scale-90" data-index="3">
+                            <div class="flip-card-inner">
+                                <div class="flip-card-front bg-gray-200">
+                                    <img src="patrimonio_loja.jpeg" onerror="this.src='https://via.placeholder.com/800x450/003366/FFFFFF?text=Patrimonio+Cultural'" alt="Patrimonio Cultural" class="w-full h-full object-cover">
+                                    <div class="absolute bottom-0 w-full bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 md:p-8 pt-12 text-left">
+                                        <h3 class="text-white font-serif text-xl md:text-3xl font-bold">Patrimonio Cultural</h3>
+                                        <p class="text-vintage-gold text-xs md:text-sm uppercase tracking-wider mt-1">Legado Histórico</p>
+                                    </div>
+                                </div>
+                                <div class="flip-card-back">
+                                    <div class="w-12 h-12 md:w-16 md:h-16 mb-2 md:mb-4 rounded-full bg-vintage-gold flex items-center justify-center text-unl-dark">
+                                        <i class="fas fa-church text-2xl md:text-3xl"></i>
+                                    </div>
+                                    <h3 class="font-serif text-xl md:text-4xl font-bold mb-2 md:mb-3 text-vintage-gold">Nuestra Historia</h3>
+                                    <p style="line-height: 2;" class="text-xs md:text-sm leading-relaxed mb-4 px-2 md:px-20">
+                                       El patrimonio arquitectónico de la ciudad de Loja tiene su máximo exponente en La Catedral, una joya histórica de estilo ecléctico que preside el Parque Central. Su imponente fachada y campanario dominan el corazón urbano, reflejando una mezcla de tradición y solemnidad que atrae la mirada tanto de quienes habitan la ciudad como de quienes la visitan. Más allá de lo religioso, la urbe resguarda tesoros invaluables como la emblemática Calle Lourdes, la cual mantiene intacta la arquitectura de antaño, y un centro histórico que conserva la esencia colonial, la cultura y la memoria viva de la Capital Musical del Ecuador.   
+                                    </p>
+                                    <button class="mt-auto text-xs md:text-sm border border-vintage-gold px-4 py-1 rounded hover:bg-vintage-gold hover:text-unl transition-colors">Volver</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 2: DESCRIPCIÓN DEL PROYECTO -->
+        <section id="proyecto" class="spa-section items-center justify-center">
+            <div class="container mx-auto px-4 md:px-6 max-w-5xl py-12">
+                <div class="bg-white p-6 md:p-10 rounded-xl shadow-2xl border border-vintage-gold/30 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-vintage-gold/10 rounded-bl-full -mr-16 -mt-16"></div>
+
+                    <div class="text-center mb-8">
+                        <h2 class="font-serif text-2xl md:text-4xl text-unl font-bold">Descripción del Proyecto</h2>
+                        <div class="h-1 w-20 bg-vintage-gold mx-auto mt-4"></div>
+                    </div>
+                    
+                    <div class="prose prose-lg text-gray-600 mx-auto text-justify text-sm md:text-base">
+                        <p class="mb-6 leading-relaxed">
+                            Este proyecto nace como una iniciativa de vinculación con la sociedad de la <strong>Universidad Nacional de Loja</strong>, titulado: <em>"Cuentos, costumbres, tradiciones y saberes para la interculturalidad"</em>. Está orientado a la creación de un cuento digital interactivo ambientado en el río Malacatos, que rescata el valor simbólico de los chilalos, pajaritos muy simbólicos que forman parte de la identidad cultural lojana. A través de la historia de Tayta y las enseñanzas de Mama Zoya, se integran la literatura infantil, la tradición oral y la educación en valores, promoviendo el respeto por la naturaleza, el trabajo colaborativo y la transmisión de saberes ancestrales a las nuevas generaciones.
+                        </p>
+                        
+                        <div class="grid md:grid-cols-2 gap-6 md:gap-8 mt-8">
+                            <div class="bg-blue-50 p-6 rounded-lg border-l-4 border-unl">
+                                <h3 class="font-serif text-lg md:text-xl text-unl mb-3 font-bold"><i class="fas fa-bullseye mr-2"></i>Propósito</h3>
+                                <p class="text-sm">Fortalecer la identidad cultural de Loja mediante el cuento digital interactivo <strong>"El Canto de los Chilalos"</strong>, promoviendo valores como el trabajo en equipo, la responsabilidad y el cuidado de la naturaleza en niños y niñas, a partir de saberes ancestrales y tradiciones locales.</p>
+                            </div>
+                            <div class="bg-yellow-50 p-6 rounded-lg border-l-4 border-vintage-gold">
+                                <h3 class="font-serif text-lg md:text-xl text-unl mb-3 font-bold"><i class="fas fa-book-open mr-2"></i>Legado Cultural</h3>
+                                <p class="text-sm">Preservar y difundir el patrimonio cultural y natural de Loja, resaltando el simbolismo de los chilalos como parte de la memoria colectiva, y fomentando una educación intercultural e inclusiva para las nuevas generaciones.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 3: CONTEXTO INSTITUCIONAL -->
+        <section id="institucional" class="spa-section items-center justify-center bg-unl text-white bg-fixed relative">
+            <div class="absolute inset-0 bg-unl opacity-95"></div>
+            <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20"></div>
+
+            <div class="container mx-auto px-6 relative z-10 max-w-6xl py-12">
+                <h2 class="font-serif text-3xl md:text-4xl text-center mb-10 md:mb-16 text-vintage-gold">Contexto Institucional</h2>
+                <h2 class="font-serif text-1xl md:text-3xl text-center font-bold mb-10 md:mb-8 text-vintage">Unidad Educativa Particular Ateneo</h2>
+
+                <div class="flex flex-col md:flex-row items-center justify-center gap-10 md:gap-16">
+                    
+                    <div class="flex-shrink-0 animate-pulse-slow">
+                        <div class="bg-white p-6 md:p-8 rounded-full shadow-2xl border-4 border-vintage-gold">
+                            <!-- LOGO SECCIÓN INSTITUCIÓN (DIFERENTE) - logoinstitucion.png -->
+                            <img src="logo_ATENEO.png" onerror="this.src='https://via.placeholder.com/250x250/FFFFFF/003366?text=LOGO+INSTITUCION'" alt="Logo Institución" class="w-32 h-32 md:w-48 md:h-48 object-contain">
+                        </div>
+                    </div>
+
+                    <div class="grid gap-6 md:gap-8 max-w-2xl w-full">
+                        <div class="bg-white/10 backdrop-blur-md p-6 rounded-xl border-l-4 border-vintage-gold">
+                            <div class="flex items-center mb-3">
+                                <i class="fas fa-bullseye text-2xl md:text-3xl text-vintage-gold mr-4"></i>
+                                <h3 class="font-serif text-xl md:text-2xl font-bold">Misión</h3>
+                            </div>
+                            <p class="text-gray-200 font-light italic leading-relaxed text-sm md:text-base">
+                                  Formar seres humanos con valores, capaces de construir sus sueños y de actuar con responsabilidad social, fortaleciendo su desarrollo personal en un ambiente ético y respetuoso.
+                            </p>
+                        </div>
+
+                        <div class="bg-white/10 backdrop-blur-md p-6 rounded-xl border-r-4 border-vintage-gold text-right">
+                            <div class="flex items-center justify-end mb-3">
+                                <h3 class="font-serif text-xl md:text-2xl font-bold">Visión</h3>
+                                <i class="fas fa-eye text-2xl md:text-3xl text-vintage-gold ml-4"></i>
+                            </div>
+                            <p class="text-gray-200 font-light italic leading-relaxed text-sm md:text-base">
+                                Ser referente educativo regional en calidad, destacándose por un modelo pedagógico innovador que estimula el pensamiento crítico y la participación activa de los estudiantes en su propio aprendizaje.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 4: AUTOR -->
+        <section id="autor" class="spa-section items-center justify-center">
+            <div class="container mx-auto px-4 md:px-6 max-w-5xl py-12">
+                <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200 flex flex-col md:flex-row h-auto md:h-[500px]">
+                    
+                    <div class="md:w-5/12 relative bg-gray-200 h-64 md:h-full">
+                        <img src="Dra. Zoila Loyola.png" onerror="this.src='https://via.placeholder.com/400x600/003366/FFFFFF?text=Don+Roque'" alt="Don Roque" class="absolute inset-0 w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-unl/80 to-transparent md:bg-gradient-to-r"></div>
+                        <div class="absolute bottom-4 left-4 text-white">
+                            <p class="font-serif text-2xl">Zoila Isabel Loyola Ramón</p>
+                            <p class="text-xs uppercase tracking-widest text-vintage-gold">Narrador Principal</p>
+                        </div>
+                    </div>
+                    
+                    <div class="md:w-7/12 p-6 md:p-10 flex flex-col justify-center bg-vintage-paper">
+                        <i class="fas fa-quote-left text-4xl text-vintage-gold/30 mb-4"></i>
+                        <h2 class="font-serif text-2xl md:text-3xl text-unl font-bold mb-4 md:mb-6">El Canto de los Chilalos</h2>
+                        
+                        <p class="text-gray-700 leading-loose mb-6 text-justify text-sm md:text-base">
+                            <strong>Zoila Isabel Loyola Ramón</strong> 
+                            La Escritora de Historias Encubiertas. La Cronista de lo Cotidiano. Para entender la identidad profunda de la ciudad de Loja, hay que leer a Zoila Loyola Ramón. Apasionada por las letras desde su niñez incluso antes de aprender a escribir a mano, Zoila ha dedicado su vida a rescatar aquellos relatos que, aunque parecen al margen, le dan una personalidad única a <strong>Loja.</strong>
+                            Con una narrativa que ella define como "simple, pero profunda", nos cuenta las vivencias de personajes icónicos que caminan por las calles de Loja, como La Loca María, Don Napito o el Pajarito. A través de sus obras <strong>"Historias de Loxa"</strong>, se ha convertido en la voz de quienes, aunque desconocidos para algunos, son fundamentales para otros.<br>
+                            <br>
+
+                        </p>
+                        
+                        <div class="mt-auto flex items-center space-x-4 border-t border-gray-300 pt-6">
+                        
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 5: CUENTO -->
+        <section id="cuento" class="spa-section items-center justify-center bg-unl-dark text-white">
+            <div class="container mx-auto px-6 max-w-4xl text-center py-12">
+                <div class="mb-8 md:mb-12 animate-bounce">
+                    <i class="fas fa-book-open text-5xl md:text-6xl text-vintage-gold"></i>
+                </div>
+                
+                <h2 class="font-serif text-3xl md:text-5xl mb-6 md:mb-8 text-white">Resumen del Cuento</h2>
+                
+                <div class="bg-white/5 p-6 md:p-8 rounded-xl border border-vintage-gold/20 backdrop-blur-sm mb-10">
+                    <h3 class="text-xl md:text-2xl font-serif text-vintage-gold mb-4">"El Canto de los Chilalos"</h3>
+                    <p class="text-base md:text-lg text-gray-300 leading-relaxed italic">
+                       En los valles de Loja, cuando amanece, <strong>Los Chilalos</strong> cantan con fuerza y alegría. Estos pajaritos no solo anuncian el nuevo día, también nos enseñan una gran lección: trabajar juntos, ser constantes y no rendirse, aunque el viento o la lluvia destruyan lo que con tanto esfuerzo se construyó. 
+                    </p>
+                </div>
+
+                <div class="flex flex-col sm:flex-row justify-center gap-4 md:gap-6">
+                    <!-- BOTÓN 1: ABRE MODAL CON LIBRO HEYZINE -->
+                    <button onclick="openModal('book')" class="group relative px-6 py-3 md:px-8 md:py-4 bg-transparent border-2 border-vintage-gold text-vintage-gold font-bold uppercase tracking-wider hover:bg-vintage-gold hover:text-unl-dark transition-all duration-300 rounded-lg overflow-hidden">
+                        <span class="absolute inset-0 w-full h-full bg-vintage-gold transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-out -z-10"></span>
+                        <i class="fas fa-book-reader mr-2"></i> Leer Libro Digital
+                    </button>
+
+                    <!-- BOTÓN 2: ABRE MODAL CON VIDEO -->
+                    <button onclick="openModal('video')" class="group relative px-6 py-3 md:px-8 md:py-4 bg-unl-light text-white font-bold uppercase tracking-wider hover:bg-white hover:text-unl transition-all duration-300 rounded-lg shadow-lg shadow-blue-900/50">
+                        <i class="fas fa-play-circle mr-2"></i> Ver Video
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- VENTANA MODAL FLOTANTE -->
+    <div id="media-modal" class="hidden fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm items-center justify-center p-4">
+        <!-- Contenedor del Modal -->
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl h-[80vh] flex flex-col relative animate-modal-in overflow-hidden border border-vintage-gold">
+            
+            <!-- Cabecera del Modal -->
+            <div class="bg-unl text-white p-4 flex justify-between items-center border-b border-vintage-gold">
+                <h3 id="modal-title" class="font-serif text-lg md:text-xl font-bold text-vintage-gold">Contenido</h3>
+                <button onclick="closeModal()" class="text-white hover:text-red-400 transition-colors">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            
+            <!-- Cuerpo del Modal (iframe) -->
+            <div class="flex-1 bg-black relative">
+                <!-- El src se llena dinámicamente con JS -->
+                <iframe id="modal-iframe" class="w-full h-full" src="" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- PIE DE PÁGINA (FOOTER) -->
+    <footer class="bg-unl-dark text-vintage-gold py-6 border-t-4 border-vintage-gold relative z-50">
+        <div class="container mx-auto px-6 text-center">
+            <div class="flex justify-center items-center mb-4">
+                 <img src="logoins.png" onerror="this.src='https://via.placeholder.com/50x50/FFFFFF/003366?text=UNL'" alt="Logo UNL" class="h-12 w-auto opacity-80 hover:opacity-100 transition-opacity object-contain">
+            </div>
+            <p class="font-serif font-bold text-base md:text-lg tracking-wide mb-1">Universidad Nacional de Loja</p>
+            <p class="text-xs md:text-sm text-gray-400 mb-4">Cuentos, Costumbres, Tradiciones y Saberes para la Interculturalidad.</p>
+            <div class="w-16 h-0.5 bg-vintage-gold/30 mx-auto mb-4"></div>
+            <p class="text-xs opacity-70">&copy; 2026 - Cantón Loja. Todos los derechos reservados | Pablo Abrigo Ochoa
+                <br> Estudiante de Pedagogia de las Ciencias Experimentales Informática </p>
+        </div>
+    </footer>
+
+    <!-- SCRIPTS LÓGICA -->
+    <script>
+        // --- CONFIGURACIÓN DE ENLACES (¡EDITAR AQUÍ!) ---
+        const MEDIA_URLS = {
+            // 1. Enlace de Heyzine (Asegúrate de usar el link de 'embed' o visualización completa)
+            // Ejemplo: 'https://heyzine.com/flip-book/tu-codigo'
+            book: 'https://heyzine.com/flip-book/8c4e0e5281.html', 
+            
+            // 2. Enlace de YouTube (Debe ser formato embed para que funcione en iframe)
+            // Cambia 'VIDEO_ID' por el ID de tu video. Ejemplo: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
+            video: 'https://www.youtube.com/embed/HBscfasJNAU' 
+        };
+
+        // --- LÓGICA DEL MODAL ---
+        const modal = document.getElementById('media-modal');
+        const modalIframe = document.getElementById('modal-iframe');
+        const modalTitle = document.getElementById('modal-title');
+
+        function openModal(type) {
+            let url = '';
+            let title = '';
+
+            if (type === 'book') {
+                url = MEDIA_URLS.book;
+                title = '📖 Libro Digital Interactivo';
+            } else if (type === 'video') {
+                url = MEDIA_URLS.video;
+                title = '🎬 Video Narrado';
+            }
+
+            // Asignar URL y mostrar modal
+            modalIframe.src = url;
+            modalTitle.textContent = title;
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeModal() {
+            // Ocultar modal
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            
+            // Limpiar iframe para detener reproducción (video/audio)
+            modalIframe.src = '';
+        }
+
+        // Cerrar modal al hacer clic fuera del contenido
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+
+        // --- MENÚ MÓVIL ---
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            if (menu.classList.contains('open')) {
+                menu.classList.remove('open');
+            } else {
+                menu.classList.add('open');
+            }
+        }
+
+        // --- NAVEGACIÓN SPA ---
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll('.spa-section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+                targetSection.style.animation = 'none';
+                targetSection.offsetHeight; 
+                targetSection.style.animation = null; 
+            }
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if(link.getAttribute('onclick').includes(sectionId)) {
+                    link.classList.add('active');
+                }
+            });
+
+            window.scrollTo(0, 0);
+        }
+
+        // --- ANIMACIÓN FONDO ---
+        const canvas = document.getElementById('canvas-background');
+        const ctx = canvas.getContext('2d');
+        let width, height, particles = [];
+        
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+
+        class Particle {
+            constructor() { this.init(); }
+            init() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * -height;
+                this.vx = Math.random() * 1 - 0.5;
+                this.vy = Math.random() * 1 + 0.5;
+                this.size = Math.random() * 3 + 2;
+                this.color = `rgba(197, 160, 89, ${Math.random() * 0.4 + 0.1})`;
+                this.rotation = Math.random() * Math.PI * 2;
+                this.rotationSpeed = Math.random() * 0.02 - 0.01;
+            }
+            update() {
+                this.x += this.vx + Math.sin(this.y * 0.01) * 0.2;
+                this.y += this.vy;
+                this.rotation += this.rotationSpeed;
+                if (this.y > height) this.init();
+            }
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, this.size, this.size / 2, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < 30; i++) particles.push(new Particle());
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', () => { resize(); initParticles(); });
+        resize(); initParticles(); animate();
+
+        // --- CARRUSEL ---
+        const items = document.querySelectorAll('.carousel-item');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        let currentIndex = 0;
+        
+        function updateCarousel() {
+            items.forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.zIndex = '0';
+                item.style.transform = 'translateX(15%) scale(0.8) rotateY(-10deg)'; 
+                item.style.pointerEvents = 'none';
+
+                const relativeIndex = (index - currentIndex + items.length) % items.length;
+
+                if (relativeIndex === 0) {
+                    item.style.opacity = '1';
+                    item.style.zIndex = '20';
+                    item.style.transform = 'translateX(0) scale(1) rotateY(0)';
+                    item.style.pointerEvents = 'auto';
+                } else if (relativeIndex === 1) {
+                    item.style.opacity = '0.5';
+                    item.style.zIndex = '10';
+                    item.style.transform = 'translateX(20%) scale(0.85) rotateY(-10deg)';
+                } else if (relativeIndex === items.length - 1) {
+                    item.style.opacity = '0.5';
+                    item.style.zIndex = '10';
+                    item.style.transform = 'translateX(-20%) scale(0.85) rotateY(10deg)';
+                }
+                
+                const innerCard = item.querySelector('.flip-card-inner');
+                if(innerCard.classList.contains('flipped')) {
+                     setTimeout(() => innerCard.classList.remove('flipped'), 300);
+                }
+            });
+        }
+
+        nextBtn.addEventListener('click', () => {
+            currentIndex = (currentIndex + 1) % items.length;
+            updateCarousel();
+        });
+
+        prevBtn.addEventListener('click', () => {
+            currentIndex = (currentIndex - 1 + items.length) % items.length;
+            updateCarousel();
+        });
+
+        document.querySelectorAll('.flip-card-inner').forEach(card => {
+            card.addEventListener('click', function() {
+                const parent = this.closest('.carousel-item');
+                if (window.getComputedStyle(parent).zIndex === '20') {
+                    this.classList.toggle('flipped');
+                }
+            });
+            const backBtn = card.querySelector('button');
+            if(backBtn){
+                backBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    card.classList.remove('flipped');
+                })
+            }
+        });
+
+        updateCarousel();
+    </script>
+</body>
+</html>
